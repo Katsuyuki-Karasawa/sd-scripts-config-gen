@@ -3,36 +3,29 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useState } from "react";
 import toml from "@iarna/toml/stringify";
+import BaseModelSelect from "./_components/base-model-select";
 
 export default function Home() {
 	const [inputData, setInputData] = useState({});
 	const [selectedModel, setSelectedModel] = useState("");
+	const [customModel, setCustomModel] = useState("");
 	const [tomlData, setTomlData] = useState("");
 
-	const handleSelectChange = (selectedValue) => {
-		setSelectedModel(selectedValue);
-	};
-
 	const handleInputChange = (e) => {
-		// ここで入力データを適切に解析し、オブジェクトに格納します。
-		// 例: { key: "value", anotherKey: "another value" }
 		setInputData({ ...inputData, [e.target.name]: e.target.value });
 	};
 
+	// TOML変換関数の更新
 	const convertToToml = () => {
 		try {
-			// Include the selected model in inputData before converting to TOML
-			const dataToConvert = { ...inputData, baseModel: selectedModel };
+			// customModel が選択されている場合、その値を baseModel として使用
+			const baseModelValue =
+				selectedModel === "custom-model" ? customModel : selectedModel;
+			const dataToConvert = { ...inputData, baseModel: baseModelValue };
 			const tomlString = toml(dataToConvert);
 			setTomlData(tomlString);
 		} catch (error) {
@@ -42,30 +35,28 @@ export default function Home() {
 
 	return (
 		<main className="flex min-h-screen flex-col items-center justify-between p-24">
-			<Select onValueChange={handleSelectChange}>
-				<SelectTrigger className="w-[180px]">
-					<SelectValue placeholder="baseModel" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value="stabilityai/stable-diffusion-xl-base-1.0">
-						SDXL Base 1.0
-					</SelectItem>
-					<SelectItem value="stabilityai/stable-diffusion-xl-refiner-1.0">
-						SDXL Refiner 1.0
-					</SelectItem>
-					<SelectItem value="stabilityai/stable-diffusion-2-1-base">
-						SD v2.1 Base
-					</SelectItem>
-					<SelectItem value="stabilityai/stable-diffusion-2-base">
-						SD v2 Base
-					</SelectItem>
-					<SelectItem value="runwayml/stable-diffusion-v1-5">SD 1.5</SelectItem>
-					<SelectItem value="CompVis/stable-diffusion-v1-4">SD v1.4</SelectItem>
-				</SelectContent>
-			</Select>
-			<Input type="text" name="key" onChange={handleInputChange} />
-			<Input type="text" name="anotherKey" onChange={handleInputChange} />
-			<Button onClick={convertToToml}>テスト</Button>
+			<Tabs defaultValue="models">
+				<TabsList>
+					<TabsTrigger value="models">Models</TabsTrigger>
+					<TabsTrigger value="folders">Folders</TabsTrigger>
+					<TabsTrigger value="parameters">Parameters</TabsTrigger>
+					<TabsTrigger value="dataset">Dataset</TabsTrigger>
+				</TabsList>
+				<TabsContent value="models">
+					<BaseModelSelect
+						selectedModel={selectedModel}
+						setSelectedModel={setSelectedModel}
+						customModel={customModel}
+						setCustomModel={setCustomModel}
+					/>
+				</TabsContent>
+				<TabsContent value="parameters">
+					{" "}
+					<Input type="text" name="key" onChange={handleInputChange} />
+					<Input type="text" name="anotherKey" onChange={handleInputChange} />
+				</TabsContent>
+			</Tabs>
+			<Button onClick={convertToToml}>Generate</Button>
 			<Textarea value={tomlData} readOnly />
 		</main>
 	);
