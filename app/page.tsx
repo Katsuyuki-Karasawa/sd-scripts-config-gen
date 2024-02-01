@@ -7,25 +7,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useState } from "react";
 import toml from "@iarna/toml/stringify";
-import BaseModelSelect from "./_components/base-model-select";
+import Folders from "./_components/folders";
+import ParametersHome from "./parameters/page";
 
 export default function Home() {
 	const [inputData, setInputData] = useState({});
-	const [selectedModel, setSelectedModel] = useState("");
-	const [customModel, setCustomModel] = useState("");
 	const [tomlData, setTomlData] = useState("");
 
 	const handleInputChange = (e) => {
-		setInputData({ ...inputData, [e.target.name]: e.target.value });
+		setInputData({
+			...inputData,
+			[e.target.name]: e.target.value,
+		});
 	};
 
-	// TOML変換関数の更新
+    const handleDropdownChange = (selectedValue: string) => {
+        const networkModule =
+          selectedValue.startsWith("LoRA") ? "networks.lora" : "networks.dylora";
+        setInputData({ ...inputData, network_module: networkModule });
+        convertToToml(); // Update TOML data immediately
+      };
+
 	const convertToToml = () => {
 		try {
-			// customModel が選択されている場合、その値を baseModel として使用
-			const baseModelValue =
-				selectedModel === "custom-model" ? customModel : selectedModel;
-			const dataToConvert = { ...inputData, baseModel: baseModelValue };
+			const dataToConvert = {
+				...inputData,
+			};
 			const tomlString = toml(dataToConvert);
 			setTomlData(tomlString);
 		} catch (error) {
@@ -43,16 +50,23 @@ export default function Home() {
 					<TabsTrigger value="dataset">Dataset</TabsTrigger>
 				</TabsList>
 				<TabsContent value="models">
-					<BaseModelSelect
-						selectedModel={selectedModel}
-						setSelectedModel={setSelectedModel}
-						customModel={customModel}
-						setCustomModel={setCustomModel}
+					<Input
+						type="text"
+						name="pretrainedModelPath"
+						placeholder="Enter model file path"
+						value={inputData.pretrained_model_name_or_path}
+						onChange={handleInputChange}
+					/>
+				</TabsContent>
+				<TabsContent value="folders">
+					<Folders
+						inputData={inputData}
+						handleInputChange={handleInputChange}
 					/>
 				</TabsContent>
 				<TabsContent value="parameters">
 					{" "}
-					<Input type="text" name="key" onChange={handleInputChange} />
+					<ParametersHome />
 					<Input type="text" name="anotherKey" onChange={handleInputChange} />
 				</TabsContent>
 			</Tabs>
