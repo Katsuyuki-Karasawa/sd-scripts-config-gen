@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
-import { useState } from "react";
 import toml from "@iarna/toml/stringify";
+import { useState } from "react";
 import Folders from "./_components/folders";
 import ParametersHome from "./parameters/page";
 
@@ -20,13 +20,6 @@ export default function Home() {
 			[e.target.name]: e.target.value,
 		});
 	};
-
-    const handleDropdownChange = (selectedValue: string) => {
-        const networkModule =
-          selectedValue.startsWith("LoRA") ? "networks.lora" : "networks.dylora";
-        setInputData({ ...inputData, network_module: networkModule });
-        convertToToml(); // Update TOML data immediately
-      };
 
 	const convertToToml = () => {
 		try {
