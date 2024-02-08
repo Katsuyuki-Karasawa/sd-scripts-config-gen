@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "bunx @biomejs/biome format --write ./app",
-    "apply": "bunx @biomejs/biome check --apply ./app"
+    "apply": "bunx @biomejs/biome check --apply ./app",
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
